@@ -28,7 +28,7 @@ export default function ToolsPage() {
   const [consoleOutput, setConsoleOutput] = useState([
     'Virgin Media Hub 5 Diagnostics Console ready.',
     'Endpoints: /rest/v1/system/diagnostics/ping/jobs & /rest/v1/system/diagnostics/traceroute/jobs',
-    'Enter target IP or domain and press "Run Diagnostic".'
+    'Enter target IP or domain and press "Run Ping" or "Run Traceroute".'
   ]);
 
   const [rebootModal, setRebootModal] = useState(false);
