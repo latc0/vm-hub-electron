@@ -27,7 +27,7 @@ function formatUptime(seconds) {
   return `${d > 0 ? `${d}d ` : ''}${h}h ${m}m`;
 }
 
-export default function DashboardPage({ mockData, onNavigate, onReboot }) {
+export default function DashboardPage({ onNavigate, onReboot }) {
   const [systemInfo, setSystemInfo] = useState({
     hardwareVersion: '1.2',
     softwareVersion: 'LG-RDK_13.7.3-2509.5'

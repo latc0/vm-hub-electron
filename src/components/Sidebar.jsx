@@ -45,16 +45,13 @@ export default function Sidebar({ activeTab, setActiveTab, routerStatus, onLogou
         {/* Status Pill Card */}
         <div className="mx-4 my-3.5 p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/70 flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
-            <span className={`w-2 h-2 rounded-full ${routerStatus.authenticated ? 'bg-emerald-400 animate-pulse' :
-              routerStatus.mockMode ? 'bg-amber-400' : 'bg-rose-500'
-              }`} />
+            <span className={`w-2 h-2 rounded-full ${routerStatus.authenticated ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`} />
             <span className="text-slate-300 font-medium">
-              {routerStatus.authenticated ? 'Authenticated' :
-                routerStatus.mockMode ? 'Mock Mode' : 'Not Connected'}
+              {routerStatus.authenticated ? 'Connected' : 'Not Authenticated'}
             </span>
           </div>
           <span className="text-[10px] font-mono text-slate-500">
-            {routerStatus.mockMode ? 'DEMO' : 'LIVE'}
+            {routerStatus.authenticated ? 'ONLINE' : 'LOCKED'}
           </span>
         </div>
 

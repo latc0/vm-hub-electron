@@ -15,7 +15,6 @@ A desktop application built with Electron, React, and Tailwind CSS for managing 
 - Configurable **Router Base URL** (defaults to `https://192.168.0.1`).
 - Configurable **API Base Path** (defaults to `/rest/v1/`).
 - **Self-Signed SSL Handling**: Automatically trusts router self-signed certificates without security rejections.
-- **Mock Mode Toggle**: Switch between physical router hardware communication and realistic mock data to preview and test all pages offline.
 
 ### 3. Application Modules
 - **Overview / Dashboard**: Live DOCSIS 3.1 channel telemetry, uptime, public WAN IP, gateway, hardware/software versions, connected device counters, and memory/CPU utilization.

@@ -33,7 +33,6 @@ export default function SettingsPage({
   const [apiBasePath, setApiBasePath] = useState(config.apiBasePath || '/rest/v1/');
   const [authHeader, setAuthHeader] = useState(config.authHeaderName || 'X-Token');
   const [ignoreCerts, setIgnoreCerts] = useState(config.ignoreCertErrors !== false);
-  const [mockMode, setMockMode] = useState(Boolean(config.mockMode));
   const [rememberPwd, setRememberPwd] = useState(config.rememberPassword !== false);
 
   const [password, setPassword] = useState(savedPassword || '');
@@ -63,33 +62,29 @@ export default function SettingsPage({
 
     async function loadHardwareSettings() {
       try {
-        if (!config.mockMode) {
-          const [ledRes, mmRes] = await Promise.all([
-            routerApi.getLedLight(),
-            routerApi.getModemMode()
-          ]);
-          if (ledRes.data?.value) {
-            setLedBrightness(ledRes.data.value.brightness || '50');
-            setLedAutoMode(ledRes.data.value.automode || 'true');
-          }
-          if (mmRes.data?.modemmode) {
-            setModemModeEnabled(Boolean(mmRes.data.modemmode.enable));
-          }
+        const [ledRes, mmRes] = await Promise.all([
+          routerApi.getLedLight(),
+          routerApi.getModemMode()
+        ]);
+        if (ledRes.data?.value) {
+          setLedBrightness(ledRes.data.value.brightness || '50');
+          setLedAutoMode(ledRes.data.value.automode || 'true');
+        }
+        if (mmRes.data?.modemmode) {
+          setModemModeEnabled(Boolean(mmRes.data.modemmode.enable));
         }
       } catch (e) {
         // non-fatal
       }
     }
     loadHardwareSettings();
-  }, [savedPassword, config.mockMode]);
+  }, [savedPassword]);
 
   const handleUpdateLed = async (brightness, automode) => {
     setLedBrightness(brightness);
     setLedAutoMode(automode);
     try {
-      if (!config.mockMode) {
-        await routerApi.setLedLight({ brightness, automode });
-      }
+      await routerApi.setLedLight({ brightness, automode });
       setHwStatusMessage('LED settings updated');
       setTimeout(() => setHwStatusMessage(null), 3000);
     } catch (err) {
@@ -106,9 +101,7 @@ export default function SettingsPage({
 
     setModemModeEnabled(next);
     try {
-      if (!config.mockMode) {
-        await routerApi.setModemMode(next);
-      }
+      await routerApi.setModemMode(next);
       setHwStatusMessage(`Modem Mode ${next ? 'enabled' : 'disabled'}`);
       setTimeout(() => setHwStatusMessage(null), 4000);
     } catch (err) {
@@ -125,7 +118,6 @@ export default function SettingsPage({
       apiBasePath: apiBasePath,
       authHeaderName: authHeader,
       ignoreCertErrors: ignoreCerts,
-      mockMode: mockMode,
       rememberPassword: rememberPwd
     });
     setSavedConfigSuccess(true);
@@ -143,7 +135,6 @@ export default function SettingsPage({
         apiBasePath: apiBasePath,
         authHeaderName: authHeader,
         ignoreCertErrors: ignoreCerts,
-        mockMode: mockMode,
         rememberPassword: rememberPwd
       });
 
@@ -406,20 +397,6 @@ export default function SettingsPage({
             />
             <label htmlFor="ignoreCerts" className="text-xs text-slate-300 cursor-pointer">
               Allow self-signed SSL certificates (Recommended for 192.168.0.1 HTTPS connections)
-            </label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="mockMode"
-              checked={mockMode}
-              onChange={(e) => setMockMode(e.target.checked)}
-              className="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-amber-500"
-            />
-            <label htmlFor="mockMode" className="text-xs text-slate-300 cursor-pointer flex items-center gap-1.5">
-              <span>Enable Mock Data Mode (allows inspecting all app pages without router hardware)</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             </label>
           </div>
         </div>

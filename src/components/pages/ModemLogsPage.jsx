@@ -29,13 +29,6 @@ export default function ModemLogsPage({ routerStatus }) {
   const fetchData = async () => {
     try {
       setError(null);
-      if (routerStatus.mockMode) {
-        const mock = routerApi.getMockData();
-        setServiceFlows(mock.serviceFlows || []);
-        setEventLogs(mock.eventLog || []);
-        return;
-      }
-
       const [flowsRes, logsRes] = await Promise.all([
         routerApi.getServiceFlows(),
         routerApi.getEventLog()
@@ -58,7 +51,7 @@ export default function ModemLogsPage({ routerStatus }) {
 
   useEffect(() => {
     fetchData();
-  }, [routerStatus.mockMode, routerStatus.authenticated]);
+  }, [routerStatus.authenticated]);
 
   // Extract speeds
   const downstreamFlow = serviceFlows.find(f => (f.serviceFlow || f).direction === 'downstream');

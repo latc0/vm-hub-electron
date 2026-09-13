@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { routerApi } from '../../services/routerApi.js';
 
-export default function WifiPage({ mockData }) {
+export default function WifiPage() {
   // Smart Mode (Band Steering)
   const [smartMode, setSmartMode] = useState(true);
   const [smartWifiEditable, setSmartWifiEditable] = useState(true);

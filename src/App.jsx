@@ -19,17 +19,14 @@ export default function App() {
     ignoreCertErrors: true,
     rememberPassword: true,
     authHeaderName: 'X-Token',
-    mockMode: false,
     hasSavedPassword: false
   });
   const [savedPassword, setSavedPassword] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [mockData, setMockData] = useState(routerApi.getMockData());
 
   const [routerStatus, setRouterStatus] = useState({
     authenticated: false,
     token: null,
-    mockMode: false,
     routerBaseUrl: 'https://192.168.0.1'
   });
 
@@ -40,11 +37,8 @@ export default function App() {
         const loadedConfig = await routerApi.getConfig();
         setConfig(loadedConfig);
 
-        let initialMock = Boolean(loadedConfig.mockMode);
-
         setRouterStatus(prev => ({
           ...prev,
-          mockMode: initialMock,
           routerBaseUrl: loadedConfig.routerBaseUrl,
           authenticated: Boolean(loadedConfig.savedToken),
           token: loadedConfig.savedToken || null
@@ -90,20 +84,11 @@ export default function App() {
     setSavedPassword('');
   };
 
-  const handleToggleMock = async () => {
-    const newMock = !routerStatus.mockMode;
-    const updated = { ...config, mockMode: newMock };
-    await routerApi.saveConfig(updated);
-    setConfig(updated);
-    setRouterStatus(prev => ({ ...prev, mockMode: newMock }));
-  };
-
   const handleSaveConfig = async (newConfig) => {
     await routerApi.saveConfig(newConfig);
     setConfig(newConfig);
     setRouterStatus(prev => ({
       ...prev,
-      mockMode: newConfig.mockMode,
       routerBaseUrl: newConfig.routerBaseUrl
     }));
   };
@@ -124,14 +109,11 @@ export default function App() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Reload mock data or live endpoints
     await new Promise(r => setTimeout(r, 600));
-    setMockData({ ...routerApi.getMockData() });
     setIsRefreshing(false);
   };
 
   const handleSaveWifi = async (wifiPayload) => {
-    setMockData(prev => ({ ...prev, wifi: wifiPayload }));
     return await routerApi.request({
       endpoint: 'wireless/config',
       method: 'PUT',
@@ -140,7 +122,6 @@ export default function App() {
   };
 
   const handleSaveDhcp = async (dhcpPayload) => {
-    setMockData(prev => ({ ...prev, dhcp: dhcpPayload }));
     return await routerApi.request({
       endpoint: 'network/dhcp',
       method: 'PUT',
@@ -149,7 +130,6 @@ export default function App() {
   };
 
   const handleSaveDns = async (dnsPayload) => {
-    setMockData(prev => ({ ...prev, dns: dnsPayload }));
     return await routerApi.request({
       endpoint: 'network/dns',
       method: 'PUT',
@@ -195,7 +175,6 @@ export default function App() {
           routerStatus={routerStatus}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
-          onToggleMock={handleToggleMock}
           onOpenSettings={() => setActiveTab('settings')}
         />
 
@@ -203,7 +182,6 @@ export default function App() {
           <div className="max-w-6xl mx-auto pb-12">
             {activeTab === 'dashboard' && (
               <DashboardPage
-                mockData={mockData}
                 routerStatus={routerStatus}
                 onNavigate={setActiveTab}
                 onReboot={handleReboot}
@@ -212,7 +190,6 @@ export default function App() {
 
             {activeTab === 'wifi' && (
               <WifiPage
-                mockData={mockData}
                 onSaveWifi={handleSaveWifi}
                 onSendRequest={handleSendRequest}
               />
@@ -220,7 +197,6 @@ export default function App() {
 
             {activeTab === 'dhcp' && (
               <DhcpPage
-                mockData={mockData}
                 onSaveDhcp={handleSaveDhcp}
                 onSendRequest={handleSendRequest}
               />
@@ -228,7 +204,6 @@ export default function App() {
 
             {activeTab === 'dns' && (
               <DnsPage
-                mockData={mockData}
                 onSaveDns={handleSaveDns}
                 onSendRequest={handleSendRequest}
               />

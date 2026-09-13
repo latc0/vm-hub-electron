@@ -1,110 +1,25 @@
-// Bridge to Electron IPC API with dev/browser mock fallback
+// Bridge to Electron IPC API
 
 const isElectron = typeof window !== 'undefined' && Boolean(window.electronAPI);
-
-// Default mock state for testing UI without physical router connection
-const mockData = {
-  system: {
-    model: 'Virgin Media Hub 5',
-    hardwareVersion: '1.0',
-    softwareVersion: 'LG-RDK-B-HUB5-v5.04.18',
-    uptime: '14 days, 6 hours, 22 mins',
-    wanIp: '82.14.99.120',
-    gateway: '82.14.96.1',
-    connectedDevicesCount: 18,
-    cpuUsage: 14,
-    ramUsage: 42
-  },
-  wifi: {
-    enabled24: true,
-    ssid24: 'VM-WiFi-5G-Home',
-    security24: 'WPA2/WPA3-Personal',
-    channel24: 6,
-    bandwidth24: '20/40 MHz',
-    enabled5: true,
-    ssid5: 'VM-WiFi-5G-Home-5G',
-    security5: 'WPA3-Personal',
-    channel5: 36,
-    bandwidth5: '80/160 MHz',
-    guestEnabled: false,
-    guestSsid: 'VM-Guest-Network'
-  },
-  dhcp: {
-    routerIp: '192.168.0.1',
-    subnetMask: '255.255.255.0',
-    dhcpEnabled: true,
-    startIp: '192.168.0.10',
-    endIp: '192.168.0.254',
-    leaseTimeHours: 24,
-    leases: [
-      { hostname: "Sam-MacBook-Pro", ip: "192.168.0.15", mac: "e4:e0:a4:23:41:9a", expires: "18h 42m", connection: "5 GHz Wi-Fi" },
-      { hostname: "Living-Room-AppleTV", ip: "192.168.0.22", mac: "ac:fd:ce:90:12:ef", expires: "21h 10m", connection: "Ethernet 1G" },
-      { hostname: "iPhone-15-Pro", ip: "192.168.0.35", mac: "4a:22:91:bb:03:d8", expires: "12h 05m", connection: "5 GHz Wi-Fi" },
-      { hostname: "Philips-Hue-Bridge", ip: "192.168.0.50", mac: "00:17:88:5c:ee:22", expires: "Static/Reserved", connection: "Ethernet 100M" },
-      { hostname: "Smart-TV-LG", ip: "192.168.0.64", mac: "70:bb:e9:12:aa:55", expires: "14h 50m", connection: "2.4 GHz Wi-Fi" },
-      { hostname: "Sonos-One-Kitchen", ip: "192.168.0.71", mac: "48:a6:b8:30:19:ac", expires: "19h 30m", connection: "2.4 GHz Wi-Fi" }
-    ],
-    reservations: [
-      { hostname: "Philips-Hue-Bridge", ip: "192.168.0.50", mac: "00:17:88:5c:ee:22" },
-      { hostname: "Home-NAS-Server", ip: "192.168.0.200", mac: "00:11:32:99:a1:bf" }
-    ]
-  },
-  dns: {
-    mode: 'auto', // 'auto' (ISP) or 'manual'
-    primaryDns: '194.168.4.100',
-    secondaryDns: '194.168.8.100',
-    customPrimary: '1.1.1.1',
-    customSecondary: '1.0.0.1',
-    dnsRebindProtection: true,
-    ddnsEnabled: false,
-    ddnsProvider: 'no-ip',
-    ddnsDomain: ''
-  },
-  portForwarding: [
-    { id: 1, rule: { enable: true, externalStartPort: 23592, externalEndPort: 23592, protocol: "udp", localStartPort: 41641, localEndPort: 41641, localAddress: "192.168.0.132", readOnly: false } },
-    { id: 2, rule: { enable: true, externalStartPort: 8080, externalEndPort: 8080, protocol: "tcp", localStartPort: 80, localEndPort: 80, localAddress: "192.168.0.200", readOnly: false } }
-  ],
-  upnp: { enable: true },
-  dmz: { enable: false, internalIp: '192.168.0.100' },
-  firewall: {
-    ipv4: { enable: true, blockFragmentedIpPackets: false, portScanProtect: true, ipFloodDetect: true },
-    ipv6: { enable: true, blockFragmentedIpPackets: false, portScanProtect: true, ipFloodDetect: true }
-  },
-  ledLight: { brightness: "50", automode: "true" },
-  modemMode: { enable: false },
-  serviceFlows: [
-    { serviceFlow: { serviceFlowId: 140156, direction: "downstream", maxTrafficRate: 1230000450, maxTrafficBurst: 42600 } },
-    { serviceFlow: { serviceFlowId: 140155, direction: "upstream", maxTrafficRate: 110000274, maxTrafficBurst: 16800 } }
-  ],
-  eventLog: [
-    { priority: "notice", time: new Date().toISOString(), message: "GUI Login Status - Login Success from LAN interface" },
-    { priority: "warning", time: new Date(Date.now() - 3600000).toISOString(), message: "DHCP RENEW WARNING - Field invalid in response" },
-    { priority: "notice", time: new Date(Date.now() - 7200000).toISOString(), message: "REG-RSP-MP Mismatch Between Calculated and Configured MIC" }
-  ]
-};
 
 class RouterApiService {
   constructor() {
     this.isElectron = isElectron;
     this.token = null;
-    this.useMock = false;
   }
 
   async getConfig() {
     if (this.isElectron) {
       const config = await window.electronAPI.getConfig();
-      this.useMock = Boolean(config.mockMode);
       this.token = config.savedToken || null;
       return config;
     }
-    // Fallback for browser testing
     return {
       routerBaseUrl: 'https://192.168.0.1',
       apiBasePath: '/rest/v1/',
       ignoreCertErrors: true,
       rememberPassword: true,
       authHeaderName: 'X-Token',
-      mockMode: true,
       hasSavedPassword: false,
       savedToken: null
     };
@@ -112,12 +27,8 @@ class RouterApiService {
 
   async saveConfig(newConfig) {
     if (this.isElectron) {
-      if ('mockMode' in newConfig) {
-        this.useMock = Boolean(newConfig.mockMode);
-      }
       return await window.electronAPI.saveConfig(newConfig);
     }
-    this.useMock = Boolean(newConfig.mockMode);
     return true;
   }
 
@@ -152,21 +63,8 @@ class RouterApiService {
   }
 
   async login(password) {
-    if (this.useMock || !this.isElectron) {
-      // Simulate network delay
-      await new Promise(r => setTimeout(r, 600));
-      this.token = 'mock-token-f73c7f58bfd88465a3c25e307b2cda88';
-      return {
-        success: true,
-        token: this.token,
-        raw: {
-          created: {
-            token: this.token,
-            userLevel: 'regular',
-            userId: 3
-          }
-        }
-      };
+    if (!this.isElectron) {
+      return { success: false, error: 'Electron environment required for live router communication' };
     }
 
     const res = await window.electronAPI.login({ password });
@@ -178,13 +76,11 @@ class RouterApiService {
 
   // Generic router API call wrapper
   async request({ endpoint, method = 'GET', data = null, headers = {} }) {
-    if (this.useMock || !this.isElectron) {
-      await new Promise(r => setTimeout(r, 400));
+    if (!this.isElectron) {
       return {
-        success: true,
-        status: 200,
-        mock: true,
-        data: { message: `Simulated mock response for ${method} ${endpoint}`, endpoint }
+        success: false,
+        status: 500,
+        error: 'Electron environment required for router requests'
       };
     }
 
@@ -521,11 +417,6 @@ class RouterApiService {
       method: 'POST',
       data: { modemmode: { enable: Boolean(enable) } }
     });
-  }
-
-  // Get mock store for UI rendering
-  getMockData() {
-    return mockData;
   }
 }
 

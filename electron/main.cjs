@@ -16,8 +16,7 @@ const defaultConfig = {
   apiBasePath: '/rest/v1/',
   ignoreCertErrors: true,
   rememberPassword: true,
-  authHeaderName: 'X-Token',
-  mockMode: false
+  authHeaderName: 'X-Token'
 };
 
 // Fallback AES key derived from machine specifics if safeStorage isn't supported
@@ -223,7 +222,6 @@ app.whenReady().then(() => {
       ignoreCertErrors: config.ignoreCertErrors,
       rememberPassword: config.rememberPassword,
       authHeaderName: config.authHeaderName,
-      mockMode: config.mockMode,
       hasSavedPassword: Boolean(config.encryptedPassword),
       savedToken: config.savedToken || null
     };

@@ -56,16 +56,6 @@ export default function PortForwardingPage({ routerStatus }) {
   const fetchData = async () => {
     try {
       setError(null);
-      if (routerStatus.mockMode) {
-        const mock = routerApi.getMockData();
-        setRules(mock.portForwarding || []);
-        setUpnpEnabled(mock.upnp?.enable ?? true);
-        setDmzState(mock.dmz || { enable: false, internalIp: '192.168.0.100' });
-        setV4Firewall(mock.firewall?.ipv4 || { enable: true });
-        setV6Firewall(mock.firewall?.ipv6 || { enable: true });
-        return;
-      }
-
       const [pfRes, upnpRes, dmzRes, fwRes] = await Promise.all([
         routerApi.getPortForwarding(),
         routerApi.getUpnp(),
@@ -99,15 +89,13 @@ export default function PortForwardingPage({ routerStatus }) {
 
   useEffect(() => {
     fetchData();
-  }, [routerStatus.mockMode, routerStatus.authenticated]);
+  }, [routerStatus.authenticated]);
 
   const handleToggleUpnp = async () => {
     const next = !upnpEnabled;
     setUpnpEnabled(next);
     try {
-      if (!routerStatus.mockMode) {
-        await routerApi.setUpnp(next);
-      }
+      await routerApi.setUpnp(next);
       showFeedback('UPnP setting updated successfully');
     } catch (err) {
       setUpnpEnabled(!next);
@@ -119,9 +107,7 @@ export default function PortForwardingPage({ routerStatus }) {
     const updated = { ...dmzState, enable: enabled };
     setDmzState(updated);
     try {
-      if (!routerStatus.mockMode) {
-        await routerApi.setDmz(updated);
-      }
+      await routerApi.setDmz(updated);
       showFeedback(`DMZ Host ${enabled ? 'enabled' : 'disabled'}`);
     } catch (err) {
       setDmzState({ ...dmzState, enable: !enabled });
@@ -132,9 +118,7 @@ export default function PortForwardingPage({ routerStatus }) {
   const handleSaveDmzIp = async (e) => {
     e.preventDefault();
     try {
-      if (!routerStatus.mockMode) {
-        await routerApi.setDmz(dmzState);
-      }
+      await routerApi.setDmz(dmzState);
       showFeedback('DMZ target IP saved');
     } catch (err) {
       setError('Failed to save DMZ IP: ' + err.message);
@@ -146,9 +130,7 @@ export default function PortForwardingPage({ routerStatus }) {
       const updated = { ...v4Firewall, [field]: !v4Firewall[field] };
       setV4Firewall(updated);
       try {
-        if (!routerStatus.mockMode) {
-          await routerApi.setIpv4Firewall(updated);
-        }
+        await routerApi.setIpv4Firewall(updated);
         showFeedback(`IPv4 ${field} updated`);
       } catch (err) {
         setV4Firewall(v4Firewall);
@@ -158,9 +140,7 @@ export default function PortForwardingPage({ routerStatus }) {
       const updated = { ...v6Firewall, [field]: !v6Firewall[field] };
       setV6Firewall(updated);
       try {
-        if (!routerStatus.mockMode) {
-          await routerApi.setIpv6Firewall(updated);
-        }
+        await routerApi.setIpv6Firewall(updated);
         showFeedback(`IPv6 ${field} updated`);
       } catch (err) {
         setV6Firewall(v6Firewall);
@@ -172,9 +152,7 @@ export default function PortForwardingPage({ routerStatus }) {
   const handleDeleteRule = async (id) => {
     if (!confirm('Are you sure you want to delete this port forwarding rule?')) return;
     try {
-      if (!routerStatus.mockMode) {
-        await routerApi.deletePortForwardingRule(id);
-      }
+      await routerApi.deletePortForwardingRule(id);
       setRules(rules.filter(r => r.id !== id));
       showFeedback('Port forwarding rule deleted');
     } catch (err) {
@@ -205,16 +183,11 @@ export default function PortForwardingPage({ routerStatus }) {
     };
 
     try {
-      if (!routerStatus.mockMode) {
-        const res = await routerApi.savePortForwardingRule(payload);
-        if (res.data?.created?.id) {
-          setRules([...rules, { id: res.data.created.id, rule: payload }]);
-        } else {
-          await fetchData();
-        }
+      const res = await routerApi.savePortForwardingRule(payload);
+      if (res.data?.created?.id) {
+        setRules([...rules, { id: res.data.created.id, rule: payload }]);
       } else {
-        const newId = (rules.length > 0 ? Math.max(...rules.map(r => r.id)) : 0) + 1;
-        setRules([...rules, { id: newId, rule: payload }]);
+        await fetchData();
       }
       setShowAddModal(false);
       showFeedback('Port forwarding rule created');

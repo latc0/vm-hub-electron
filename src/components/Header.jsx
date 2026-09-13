@@ -7,7 +7,6 @@ export default function Header({
   routerStatus,
   onRefresh,
   isRefreshing,
-  onToggleMock,
   onOpenSettings
 }) {
   return (
@@ -20,19 +19,6 @@ export default function Header({
       </div>
 
       <div className="flex items-center space-x-3">
-        {/* Mock Mode Quick Toggle */}
-        <button
-          onClick={onToggleMock}
-          title={routerStatus.mockMode ? "Mock mode active (simulating responses)" : "Live router mode"}
-          className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${routerStatus.mockMode
-              ? 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
-              : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200'
-            }`}
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>{routerStatus.mockMode ? 'Mock Data Active' : 'Live Router'}</span>
-        </button>
-
         {/* Auth Badge */}
         {routerStatus.authenticated ? (
           <div className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">

@@ -102,25 +102,25 @@ function getDeviceIcon(hostname, connection) {
   return <Monitor className="w-4 h-4 text-slate-400" />;
 }
 
-export default function DhcpPage({ mockData, onSaveDhcp, onSendRequest }) {
+export default function DhcpPage({ onSaveDhcp, onSendRequest }) {
   // State for all 4 Virgin Media Hub 5 endpoints
   const [provisioning, setProvisioning] = useState({
-    gatewayIp: mockData.dhcp.routerIp || '192.168.0.1',
-    subnetMask: mockData.dhcp.subnetMask || '255.255.255.0',
-    macAddress: '00:11:22:33:44:55',
+    gatewayIp: '192.168.0.1',
+    subnetMask: '255.255.255.0',
+    macAddress: '64:7B:1E:91:AA:60',
     domainName: 'hub5.home'
   });
 
   const [dhcpConfig, setDhcpConfig] = useState({
-    enabled: mockData.dhcp.dhcpEnabled !== false,
-    startIp: mockData.dhcp.startIp || '192.168.0.10',
-    endIp: mockData.dhcp.endIp || '192.168.0.254',
-    leaseTime: mockData.dhcp.leaseTimeHours ? mockData.dhcp.leaseTimeHours * 3600 : 86400,
-    leaseTimeHours: mockData.dhcp.leaseTimeHours || 24
+    enabled: true,
+    startIp: '192.168.0.10',
+    endIp: '192.168.0.254',
+    leaseTime: 86400,
+    leaseTimeHours: 24
   });
 
-  const [hosts, setHosts] = useState(normalizeHosts(mockData.dhcp.leases));
-  const [reservedIps, setReservedIps] = useState(normalizeReservedIps(mockData.dhcp.reservations));
+  const [hosts, setHosts] = useState([]);
+  const [reservedIps, setReservedIps] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { routerApi } from '../../services/routerApi.js';
 
-export default function DnsPage({ mockData, onSendRequest }) {
+export default function DnsPage({ onSendRequest }) {
   // Live ISP DNS from /system/gateway/provisioning
   const [ispDns, setIspDns] = useState(['194.168.4.100', '194.168.8.100']);
 
