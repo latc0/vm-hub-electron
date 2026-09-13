@@ -92,3 +92,9 @@ router-app/
 ├── tailwind.config.js
 └── vite.config.js
 ```
+
+---
+
+## License
+
+This software is released into the public domain under [The Unlicense](LICENSE). Anyone is free to use, copy, modify, distribute, or sell this software for any purpose without restriction or attribution requirements.
