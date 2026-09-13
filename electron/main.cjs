@@ -297,7 +297,12 @@ app.whenReady().then(() => {
         headers: requestHeaders,
         body: data
       });
-      return { success: true, ...response };
+      const isHttpSuccess = response.status >= 200 && response.status < 300;
+      return {
+        success: isHttpSuccess,
+        ...response,
+        error: !isHttpSuccess ? (response.data?.message || response.statusText || `HTTP ${response.status}`) : undefined
+      };
     } catch (err) {
       return {
         success: false,

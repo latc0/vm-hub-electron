@@ -134,24 +134,24 @@ export default function DnsPage({ onSendRequest }) {
       }
 
       const res = await routerApi.updateDnsConfig(payload);
-      if (res.success) {
-        setFeedback({ type: 'success', message: 'DNS configuration updated successfully on Virgin Media Hub 5!' });
-      } else if (res.status === 503) {
+      if (res.status === 503 || res.data?.errorCode === 9) {
         setFeedback({
           type: 'warning',
-          message: 'Hub 5 returned HTTP 503: DNS override feature is locked by Virgin Media firmware on this Hub 5 profile (managed via DOCSIS provisioning).'
+          message: 'Virgin Media Hub 5 Firmware Restriction: DNS override is disabled on residential DOCSIS firmware (HTTP 503 Service Not Available). Virgin Media locks DNS to ISP servers (194.168.4.100 / 194.168.8.100). To use custom DNS, configure resolvers on client devices or put Hub 5 in Modem Mode with your own router.'
         });
+      } else if (res.success || (res.status >= 200 && res.status < 300)) {
+        setFeedback({ type: 'success', message: 'DNS configuration updated successfully on Virgin Media Hub 5!' });
+        await fetchDnsData();
       } else {
         setFeedback({
           type: 'error',
-          message: res.error || `Server responded with status ${res.status || 'unknown'}`
+          message: res.error || res.data?.message || `Server responded with status ${res.status || 'unknown'}`
         });
       }
     } catch (err) {
       setFeedback({ type: 'error', message: `Request failed: ${err.message}` });
     } finally {
       setIsSaving(false);
-      setTimeout(() => setFeedback(null), 6000);
     }
   };
 
@@ -257,6 +257,22 @@ export default function DnsPage({ onSendRequest }) {
           <span className="text-[10px] text-slate-500 block">Virgin Media Broadband Backup Relay</span>
         </div>
       </div>
+
+      {/* Firmware Limitation Notice */}
+      {!isDnsEditableOnRouter && (
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-1.5">
+          <div className="font-semibold flex items-center gap-2 text-amber-300">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>Firmware Notice: DNS Overriding Disabled by Virgin Media</span>
+          </div>
+          <p className="text-slate-300 leading-relaxed">
+            Your Hub 5 reports <code className="text-amber-300 bg-amber-950/60 px-1 py-0.5 rounded font-mono">screens.dns.display: false</code> and rejects changes with <code className="text-amber-300 bg-amber-950/60 px-1 py-0.5 rounded font-mono">503 Service not available! (errorCode: 9)</code>. On Virgin Media UK residential firmware, DNS servers are enforced via DOCSIS provisioning.
+          </p>
+          <p className="text-slate-400 text-[11px] leading-relaxed pt-1">
+            <strong>Workaround:</strong> To use Cloudflare/Google/AdGuard DNS on your network, configure custom DNS resolvers directly in your client device's network settings (macOS, Windows, iOS, Android), or enable <strong>Modem Mode</strong> in Settings to pair the Hub 5 with your own router.
+          </p>
+        </div>
+      )}
 
       {/* Configuration Form */}
       <form onSubmit={handleSave} className="space-y-6">
