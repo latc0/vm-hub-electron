@@ -1,0 +1,37 @@
+{
+  "name": "router-app",
+  "version": "1.0.0",
+  "description": "Virgin Media Hub 5 Electron Management App",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"cross-env WAIT_FOR_VITE=1 ./scripts/run-electron.sh .\"",
+    "build:renderer": "vite build",
+    "build": "vite build",
+    "start": "./scripts/run-electron.sh .",
+    "web": "vite"
+  },
+  "keywords": [
+    "router",
+    "electron",
+    "hub5",
+    "virgin-media"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "lucide-react": "^1.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.7"
+  }
+}
